@@ -1,0 +1,51 @@
+# .gitignore 中，常見必須忽略的類型（快速檢查表）
+
+# 基本上所有專案都要忽略的
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# 虛擬環境 / 依賴
+venv/
+checkpoints/
+test_dataset/
+results/
+env/
+.venv/
+node_modules/
+dist/
+build/
+target/               # java maven
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE / 編輯器
+.vscode/
+.idea/
+*.iml
+*.sublime-*
+*.code-workspace
+
+# 打包產物與大檔案
+*.zip
+*.rar
+*.7z
+*.tar.gz
+*.exe
+*.dll
+*.so
+*.dmg
+*.pkg
+
+# 本地開發設定（常忘記加）
+.env
+.env.local
+.env.development
+.env.production
+*.env.*

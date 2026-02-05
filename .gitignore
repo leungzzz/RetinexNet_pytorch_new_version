@@ -12,6 +12,8 @@ Thumbs.db
 # 虛擬環境 / 依賴
 venv/
 checkpoints/
+training_results/
+checkpoints_2/
 test_dataset/
 results/
 env/

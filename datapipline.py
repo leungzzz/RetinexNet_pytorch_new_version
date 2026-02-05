@@ -113,7 +113,7 @@ class PairDataset(data.Dataset):
 
         # 改动点：灰度图计算 (基于 [0, 1] 的 input_img)
         r, g, b = input_img[0:1], input_img[1:2], input_img[2:3]
-        # 使用标准心理学公式计算亮度
+        # 使用标准公式计算亮度
         A_gray = 0.299 * r + 0.587 * g + 0.114 * b
 
         return {
@@ -125,6 +125,8 @@ class PairDataset(data.Dataset):
             'B_paths': B_path
         }
 
+    def __len__(self):
+        return self.A_size
 
 class Config:
     def __init__(self, **kwargs):

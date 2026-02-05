@@ -35,7 +35,7 @@ class GradientLoss(nn.Module):
 # --------------------------------------- 核心逻辑 ---------------------------------------
 def train():
     # 参数设置
-    epochs = 200
+    epochs = 100   # ori 200
     lr = 1e-4
     nums_layer = 5
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -151,11 +151,11 @@ def train():
             opt_enh.step()
 
         # 打印日志
-        print(f"Epoch [{epoch+1}/{epochs}] | Dec Loss: {epoch_dec_loss/len(dataloader):.4f} | Enh Loss: {epoch_enh_loss/len(dataloader):.4f}")
+        print(f"Epoch [{epoch+1}/{epochs}] | Dec Loss: {epoch_dec_loss/len(dataloader):.6f} | Enh Loss: {epoch_enh_loss/len(dataloader):.6f}")
 
         # 6. 定期保存
         if (epoch + 1) % 10 == 0:
-            save_path = "./checkpoints/"
+            save_path = "./checkpoints_2/"
             os.makedirs(save_path, exist_ok=True)
             checkpoint = {
                 "Dec_model": dec_model.state_dict(),

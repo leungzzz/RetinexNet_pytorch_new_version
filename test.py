@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # 配置
     CONFIG = {
         "num_layer": 5,
-        "model_path": "./checkpoints/model_200.tar",
+        "model_path": "./checkpoints_3/model_200.tar",
         "test_data_dir": "/home/mingmou/Downloads/retinexnet_datasets/test_dataset/testA",
         "save_dir": "./test_dataset/resultsA/",
         "device": torch.device("cuda" if torch.cuda.is_available() else "cpu")

@@ -1,83 +1,61 @@
-## RetinexNet Pytorch
+# RetinexNet-PyTorch (Modernized)
 
-This is a repository for code to reproduce **Deep Retinex Decomposition for Low-Light Enhancement** as a pytorch project.
+This repository provides a modernized PyTorch implementation of **Deep Retinex Decomposition for Low-Light Enhancement** (BMVC 2018). 
 
-In this project I basically copied the same setting in authors' [code](https://github.com/weichen582/RetinexNet), which was written in tensorflow.  
+While the original paper was implemented in TensorFlow and previous PyTorch ports (such as [houze-liu's](https://github.com/houze-liu/RetinexNet_pytorch)) were built on older versions, this repository features a rewritten codebase to support **modern PyTorch environments**, improve **training efficiency**, and provide enhanced **visualization**.
 
-I did this project for an interview. I am no longer interested in it. I publish the code in case it might be helpful to others.  
+## 📖 Theoretical Background
+The Retinex theory assumes that an image $S$ can be decomposed into two components: Reflectance $R$ and Illumination $I$:
+$$S = R \circ I$$
+Where $\circ$ denotes element-wise multiplication. This model aims to decompose the low-light image and enhance it by adjusting the illumination component.
 
-Please refer to author's code if my code confuses you.
+## 📂 Dataset Setup
 
+The model is trained using the **Synthetic Image Pairs** dataset.
+1. Download the dataset from RetinexNet_ori: [Synthetic Image Pairs from Raw Images](https://drive.google.com/file/d/1G6fi9Kiu7CDnW2Sh7UQ5ikvScRv8Q14F/view?usp=drive_open).
+2. Organize the data directory as follows:
 
-
-#### Resutls
-
-Before; After
-
-![low10499](./results/low10499.png)
-
-
-
-![low10499](./results/enlighten10499.png)
-
-
-
-#### Requirements
-
-torch 1.0.0
-
-PIL
-
-
-
-#### Datasets
-
-[google drive(including train and test)](https://drive.google.com/open?id=1-PqpEKjJxfAH0GmVwsPPQB-R3NqiPVCO)
-
-
-
-#### Project Structure
-
-```
-- Desktop
-
-  - Retinex_pytorch
-    ......
-
-  - final_dataset
-    - trainA
-    - trainB
-
-  - test_dataset
-    - testA
-    - testB
-   (- resultsA) # this dir will be created during test
+```text
+- path/to/BrighteningTrain/
+  - low/   # Low-light input images
+  - high/  # Ground truth/Normal-light images
 ```
 
+## 🛠️ Usage
 
+1. Training. Update the ```dataroot``` path in ```datapipeline.py``` within the ```Get_paired_dataset``` function, then run:
 
-#### Usage
+  ```python
+  python train.py
+  ```
 
-training:
+2. Testing. To generate enhanced results from your test set:
 
-```python
-python train.py
-```
+  ```python
+  python test.py
+  ```
 
-testing:
-
-```python
-python test.py
-```
-
-evaluating:(report PSN score between testA and resultsA; run after testing)
+3. Evaluation. To measure the performance (PSNR and SSIM) of the generated results:
 
 ```python
 python evaluation.py
 ```
 
+## 📊 Results
+The following image demonstrates the decomposition and enhancement process (results from Epoch 180):
+
+**Image Layout Reference:**
+
+| Row | Column 1 | Column 2 | Column 3 |
+| :--- | :--- | :--- | :--- |
+| **Top** | Input Low-light ($S$) | Decomposed Reflectance ($R$) | Decomposed Illumination ($I$) |
+| **Bottom** | Ground Truth | Reconstructed $\hat{I}$ | Final Result $\hat{S}$ |
+
+![result](training_results/epoch_180.png)
 
 
-#### Acknowledge
+## 📜 Acknowledgments
 
-[authors' website about their project](https://daooshee.github.io/BMVC2018website/), [source paper](https://arxiv.org/pdf/1808.04560.pdf), [datapipline code](https://github.com/TAMU-VITA/EnlightenGAN)
+1. Original Paper: Wei, C., Wang, W., Yang, W., & Liu, J. (2018). Deep Retinex Decomposition for Low-Light Enhancement. [Project Page](https://daooshee.github.io/BMVC2018website/).
+
+2. Reference Implementation: Based on the work by [houze-liu/RetinexNet_pytorch](https://github.com/houze-liu/RetinexNet_pytorch).

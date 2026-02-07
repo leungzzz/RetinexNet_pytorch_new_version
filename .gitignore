@@ -15,6 +15,8 @@ venv/
 #training_results/
 checkpoints_2/
 test_dataset/
+training_results_for_LSUI
+checkpoints_for_LSUI_2/model_*
 results/
 env/
 .venv/

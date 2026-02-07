@@ -7,9 +7,8 @@ from torch.utils.data import DataLoader
 from datapipline import Get_paired_dataset
 import torchvision.utils as vutils
 
-# ---------------------------- result ---------------------------
-# 将这段代码直接用于 LSUI UIE 数据集，结果 I 直接全白，没有提供有效的数据
-# 优化方向：是否可以添加惩罚？I 如果全1，那么惩罚将会变得很大。 >>> train_2.py
+
+# 优化：是否可以添加惩罚？I 如果全1，那么惩罚将会变得很大。
 
 # --------------------------------------- 辅助模块 ---------------------------------------
 
@@ -67,7 +66,7 @@ def train():
     # dataloader = DataLoader(dataset, batch_size=1, shuffle=True, num_workers=4)
     dataloader = Get_paired_dataset(batch_size=1) # 直接获取 dataloader
 
-    save_dir = "./training_results_for_LSUI"
+    save_dir = "./training_results_for_LSUI_2"
     os.makedirs(save_dir, exist_ok=True)
 
     log_path = os.path.join(save_dir, "train_log.txt")
@@ -118,6 +117,7 @@ def train():
 
         epoch_dec_loss = 0
         epoch_enh_loss = 0
+
         for i, data in enumerate(dataloader):
             # 数据归一化并搬运至 GPU
             s_low = ((data['A'].to(device) + 1.0) / 2.0)
@@ -127,20 +127,27 @@ def train():
             opt_dec.zero_grad()
             r_low, i_low = dec_model(s_low)
             r_normal, i_normal = dec_model(s_normal)
+
             # 重构损失
             loss_reconst = l1_loss(s_low, r_low * i_low) + \
                            l1_loss(s_normal, r_normal * i_normal) + \
                            0.001 * l1_loss(s_low, r_normal * i_low) + \
                            0.001 * l1_loss(s_normal, r_low * i_normal)
-            # 反射率一致性
-            loss_ivref = 0.01 * l1_loss(r_low, r_normal)
-            # 平滑损失
-            loss_smooth_dec = 0.1 * grad_loss_func(i_low, r_low) + \
-                              0.1 * grad_loss_func(i_normal, r_normal)
-            loss_dec = loss_reconst + loss_ivref + loss_smooth_dec
+            
+            # 反射率一致性 ( 增加权重： 0.01 >>> 0.1 ，强迫 R 去色去噪)
+            loss_ivref = 0.1 * l1_loss(r_low, r_normal)
+
+            # 平滑损失 (降低权重，避免 I 变成全白平面）
+            loss_smooth_dec = 0.05 * grad_loss_func(i_low, r_low) + \
+                              0.05 * grad_loss_func(i_normal, r_normal)
+
+            # 新增：照度对比约束 (防止 I 变成全白)
+            # 我们假设 s_low 的照度均值应该比 1 小，通过 MSE 引导其向 0.5 靠近
+            loss_i_mutual = torch.mean(torch.abs(i_low - 0.5)) + torch.mean(torch.abs(i_normal - 0.5))
+            
+            loss_dec = loss_reconst + loss_ivref + loss_smooth_dec + 0.05 * loss_i_mutual
             loss_dec.backward()
             opt_dec.step()
-
 
             # --- 阶段 B: 训练增强网络 (Enhance_Net) ---
             opt_enh.zero_grad()
@@ -148,12 +155,16 @@ def train():
             # 重新获取最新的 R_low
             with torch.no_grad():
                 r_low_fixed, i_low_fixed = dec_model(s_low)
+                
             i_low_hat = enh_model(r_low_fixed.detach(), i_low_fixed.detach())
+
             loss_reconst_enh = l1_loss(s_normal, r_low_fixed.detach() * i_low_hat)
-            loss_smooth_enh = 3.0 * grad_loss_func(i_low_hat, r_low_fixed.detach())
+
+            loss_smooth_enh = 1.0 * grad_loss_func(i_low_hat, r_low_fixed.detach())   # minor change
             loss_enh = loss_reconst_enh + loss_smooth_enh
             loss_enh.backward()
             opt_enh.step()
+
             # 累积损失以便打印
             epoch_dec_loss += loss_dec.item()
             epoch_enh_loss += loss_enh.item()
@@ -168,7 +179,7 @@ def train():
         
         # 6. 定期保存
         if (epoch + 1) % 10 == 0:
-            save_path = "./checkpoints_for_LSUI/"
+            save_path = "./checkpoints_for_LSUI_2/"
             os.makedirs(save_path, exist_ok=True)
             checkpoint = {
                 "Dec_model": dec_model.state_dict(),
@@ -177,7 +188,6 @@ def train():
             }
             torch.save(checkpoint, f"{save_path}model_{epoch+1}.tar")
             torch.save(checkpoint, f"{save_path}model_latest.tar")
-
 
     # 训练结束
     log_file.close()

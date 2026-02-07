@@ -6,7 +6,9 @@ While the original paper was implemented in TensorFlow and previous PyTorch port
 
 ## 📖 Theoretical Background
 The Retinex theory assumes that an image $S$ can be decomposed into two components: Reflectance $R$ and Illumination $I$:
+
 $$S = R \circ I$$
+
 Where $\circ$ denotes element-wise multiplication. This model aims to decompose the low-light image and enhance it by adjusting the illumination component.
 
 ## 📂 Dataset Setup
